@@ -1,15 +1,21 @@
 version: '3'
 
 services:
-  db:
-    image: mysql
+  mysql:
+    image: "mysql:5.7" 
     environment:
-      MYSQL_USER: root
+      MYSQL_USER: root #必填，不然会创建空密码的root用户
       MYSQL_ROOT_PASSWORD: xxxxxx
+      MYSQL_DATABASE: "dev" #默认创建的数据
     ports:
-      - '3316:3306'
+      - '3306:3306' #关联到宿主机的3306端口
     volumes:
-      - ./db/mysql/volumes:/var/lib/mysql
+      - ./tmp/db:/var/lib/mysql #将contaner数据目录挂在到宿主机的对应目录
+  
+  redis:
+    image: redis
+    ports:
+      - '6379:6379'
       
   web:
     build: .
@@ -19,3 +25,6 @@ services:
     working_dir: /app
     ports:
       - "3000:3000"
+    depends_on:
+      - mysql #依赖的service，up web时同时up mysql service
+      - redis
